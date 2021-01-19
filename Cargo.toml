@@ -2,7 +2,7 @@
 name = "async-codec-lite"
 edition = "2018"
 version = "0.0.0"
-authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
+authors = ["<hvithrafn@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception AND MIT"
 description = """
 Adaptors from AsyncRead/AsyncWrite to Stream/Sink using futures.
