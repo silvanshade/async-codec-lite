@@ -1,12 +1,6 @@
-#[cfg(feature = "lines")]
-use async_codec_lite::LinesCodec;
-use async_codec_lite::{Bytes, Framed};
+use async_codec_lite::Bytes;
 use core::iter::Iterator;
-use futures_lite::future::block_on;
-use futures_util::{
-    io::{AsyncWrite, Cursor},
-    sink::SinkExt,
-};
+use futures_util::io::AsyncWrite;
 use std::{
     pin::Pin,
     task::{Context, Poll},
@@ -50,25 +44,31 @@ impl AsyncWrite for AsyncWriteNull {
 }
 
 #[cfg(feature = "lines")]
-#[test]
-fn line_write() {
-    let curs = Cursor::new(vec![0u8; 16]);
-    let mut framer = Framed::new(curs, LinesCodec {});
-    block_on(framer.send("Hello\n".to_owned())).unwrap();
-    block_on(framer.send("World\n".to_owned())).unwrap();
-    let parts = framer.into_parts();
-    assert_eq!(&parts.io.get_ref()[0 .. 12], b"Hello\nWorld\n");
-    assert_eq!(parts.io.position(), 12);
-}
+mod line {
+    use async_codec_lite::{Framed, LinesCodec};
+    use futures_lite::future::block_on;
+    use futures_util::{io::Cursor, sink::SinkExt};
 
-#[cfg(feature = "lines")]
-#[test]
-fn line_write_to_eof() {
-    let mut buf = [0u8; 16];
-    let curs = Cursor::new(&mut buf[..]);
-    let mut framer = Framed::new(curs, LinesCodec {});
-    let _err = block_on(framer.send("This will fill up the buffer\n".to_owned())).unwrap_err();
-    let parts = framer.into_parts();
-    assert_eq!(parts.io.position(), 16);
-    assert_eq!(&parts.io.get_ref()[0 .. 16], b"This will fill u");
+    #[test]
+    fn write() {
+        let curs = Cursor::new(vec![0u8; 16]);
+        let mut framer = Framed::new(curs, LinesCodec {});
+        block_on(framer.send("Hello\n".to_owned())).unwrap();
+        block_on(framer.send("World\n".to_owned())).unwrap();
+        let parts = framer.into_parts();
+        assert_eq!(&parts.io.get_ref()[0 .. 12], b"Hello\nWorld\n");
+        assert_eq!(parts.io.position(), 12);
+    }
+
+    #[cfg(feature = "lines")]
+    #[test]
+    fn write_to_eof() {
+        let mut buf = [0u8; 16];
+        let curs = Cursor::new(&mut buf[..]);
+        let mut framer = Framed::new(curs, LinesCodec {});
+        let _err = block_on(framer.send("This will fill up the buffer\n".to_owned())).unwrap_err();
+        let parts = framer.into_parts();
+        assert_eq!(parts.io.position(), 16);
+        assert_eq!(&parts.io.get_ref()[0 .. 16], b"This will fill u");
+    }
 }
