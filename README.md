@@ -29,13 +29,9 @@ that it does not require `T: Unpin` in the `Sink` implementation for
 `FramedWrite` with `tower-lsp` problematic, as discussed in the issue
 [here](https://github.com/matthunz/futures-codec/issues/46).
 
-(The crate [YZITE/futures-codec](https://github.com/YZITE/futures-codec) didn't
-have this problem but was not actually published as far as I could tell).
-
 ## Acknowledgements
 
 This crate is based on code and ideas from the following crates:
 
 * [matthunz/futures-codec](https://github.com/matthunz/futures-codec)
-* [YZITE/futures-codec](https://github.com/YZITE/futures-codec)
 * [tokio-rs/tokio](https://github.com/tokio-rs/tokio)
