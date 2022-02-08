@@ -159,7 +159,7 @@
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span>() {
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">L::start_decode</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">L::start_decode</span>(<span class="ident">src</span>)<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident"><span class="self">Self</span>::HEADER_LEN</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len</span> {
                 <span class="comment">// Skip the length header we already read.</span>
                 <span class="ident">src</span>.<span class="ident">advance</span>(<span class="ident"><span class="self">Self</span>::HEADER_LEN</span>);
