@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["async_codec_lite"] = [{"text":"impl&lt;E:&nbsp;<a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/std/error/trait.Error.html\" title=\"trait std::error::Error\">Error</a> + 'static&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/convert/trait.From.html\" title=\"trait core::convert::From\">From</a>&lt;E&gt; for <a class=\"enum\" href=\"async_codec_lite/enum.LimitError.html\" title=\"enum async_codec_lite::LimitError\">LimitError</a>&lt;E&gt;","synthetic":false,"types":["async_codec_lite::codec::limit::LimitError"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
