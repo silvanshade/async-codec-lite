@@ -4,14 +4,14 @@
     <strong>Adaptors from AsyncRead/AsyncWrite to Stream/Sink using futures.</strong>
   </p>
   <p style="margin-bottom: 0.5ex;">
-    <a href="https://hvithrafn.github.io/async-codec-lite/async_codec_lite"><img
+    <a href="https://silvanshade.github.io/async-codec-lite/async_codec_lite"><img
         src="https://img.shields.io/badge/docs-latest-blueviolet?logo=Read-the-docs&logoColor=white"
         /></a>
-    <a href="https://github.com/hvithrafn/async-codec-lite/actions"><img
-        src="https://github.com/hvithrafn/async-codec-lite/workflows/main/badge.svg"
+    <a href="https://github.com/silvanshade/async-codec-lite/actions"><img
+        src="https://github.com/silvanshade/async-codec-lite/workflows/main/badge.svg"
         /></a>
-    <a href="https://codecov.io/gh/hvithrafn/async-codec-lite"><img
-        src="https://codecov.io/gh/hvithrafn/async-codec-lite/branches/main/graph/badge.svg"
+    <a href="https://codecov.io/gh/silvanshade/async-codec-lite"><img
+        src="https://codecov.io/gh/silvanshade/async-codec-lite/branches/main/graph/badge.svg"
         /></a>
   </p>
 </div>
