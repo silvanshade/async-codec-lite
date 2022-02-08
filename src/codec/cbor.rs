@@ -14,7 +14,7 @@ where
     type Item = Dec;
 
     fn decode(&mut self, buf: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-        let mut de = serde_cbor::Deserializer::from_slice(&buf);
+        let mut de = serde_cbor::Deserializer::from_slice(buf);
 
         let res: Result<Dec, _> = serde::de::Deserialize::deserialize(&mut de);
 

@@ -15,7 +15,7 @@ where
     type Item = Dec;
 
     fn decode(&mut self, buf: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-        let de = serde_json::Deserializer::from_slice(&buf);
+        let de = serde_json::Deserializer::from_slice(buf);
         let mut iter = de.into_iter::<Dec>();
 
         let res = match iter.next() {
@@ -44,7 +44,7 @@ where
         let j = serde_json::to_string(&data)?;
 
         buf.reserve(j.len());
-        buf.put_slice(&j.as_bytes());
+        buf.put_slice(j.as_bytes());
 
         Ok(())
     }

@@ -60,7 +60,7 @@ impl<L: Length> Decoder for LengthCodec<L> {
         Ok(if src.len() < std::mem::size_of::<L>() {
             None
         } else {
-            let len = L::start_decode(&src)?;
+            let len = L::start_decode(src)?;
             if src.len() - Self::HEADER_LEN >= len {
                 // Skip the length header we already read.
                 src.advance(Self::HEADER_LEN);

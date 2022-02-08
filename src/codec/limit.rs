@@ -81,7 +81,7 @@ where
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         while let Some(sas) = self.skip_ahead_state.take() {
-            match sas.continue_skipping(&src) {
+            match sas.continue_skipping(src) {
                 Ok((amount, next)) => {
                     self.skip_ahead_state = next;
                     debug_assert!(amount <= src.len());
