@@ -40,6 +40,7 @@ where
                 codec: decoder,
                 state: ReadFrame {
                     buffer: BytesMut::with_capacity(capacity),
+                    has_errored: false,
                 },
             },
         }
