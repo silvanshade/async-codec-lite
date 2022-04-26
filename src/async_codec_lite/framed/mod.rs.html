@@ -187,6 +187,7 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">inner</span>;
 <span class="kw">mod</span> <span class="ident">read</span>;
 <span class="kw">mod</span> <span class="ident">write</span>;
@@ -235,6 +236,7 @@
                 <span class="ident">state</span>: <span class="ident">RWFrames</span> {
                     <span class="ident">read</span>: <span class="ident">ReadFrame</span> {
                         <span class="ident">buffer</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">capacity</span>),
+                        <span class="ident">has_errored</span>: <span class="bool-val">false</span>,
                     },
                     <span class="ident">write</span>: <span class="ident">WriteFrame::default</span>(),
                 },

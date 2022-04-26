@@ -133,6 +133,7 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
+<span id="131">131</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::inner</span>::{<span class="ident">FramedInner</span>, <span class="ident">ReadFrame</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">codec::Decoder</span>, <span class="ident">error::Error</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
@@ -175,6 +176,7 @@
                 <span class="ident">codec</span>: <span class="ident">decoder</span>,
                 <span class="ident">state</span>: <span class="ident">ReadFrame</span> {
                     <span class="ident">buffer</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">capacity</span>),
+                    <span class="ident">has_errored</span>: <span class="bool-val">false</span>,
                 },
             },
         }
