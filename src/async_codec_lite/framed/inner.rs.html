@@ -307,7 +307,7 @@
                     },
                     <span class="kw">_</span> =&gt; {
                         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">as_mut</span>().<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>))<span class="question-mark">?</span>;
-                        <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">n</span>]);
+                        <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[.. <span class="ident">n</span>]);
                         <span class="ident">ended</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span>;
                         <span class="kw">continue</span>;
                     },
