@@ -74,7 +74,7 @@ where
                     },
                     _ => {
                         let n = ready!(this.inner.as_mut().poll_read(cx, &mut buf))?;
-                        state.buffer.extend_from_slice(&buf[..n]);
+                        state.buffer.extend_from_slice(&buf[.. n]);
                         ended = n == 0;
                         continue;
                     },
