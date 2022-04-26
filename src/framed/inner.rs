@@ -50,29 +50,38 @@ where
         let mut ended = false;
         let mut this = self.project();
         let state = this.state.borrow_mut();
+        if state.has_errored {
+            return Poll::Ready(None);
+        }
         loop {
-            match this.codec.decode(&mut state.buffer).map_err(Error::Codec)? {
-                Some(item) => return Poll::Ready(Some(Ok(item))),
-                None if ended => {
-                    return if state.buffer.is_empty() {
-                        Poll::Ready(None)
-                    } else {
-                        match this.codec.decode_eof(&mut state.buffer).map_err(Error::Codec)? {
-                            Some(item) => Poll::Ready(Some(Ok(item))),
-                            None if state.buffer.is_empty() => Poll::Ready(None),
-                            None => Poll::Ready(Some(Err(io::Error::new(
-                                io::ErrorKind::UnexpectedEof,
-                                "bytes remaining in stream",
-                            )
-                            .into()))),
-                        }
-                    };
+            match this.codec.decode(&mut state.buffer).map_err(Error::Codec) {
+                Ok(ok) => match ok {
+                    Some(item) => return Poll::Ready(Some(Ok(item))),
+                    None if ended => {
+                        return if state.buffer.is_empty() {
+                            Poll::Ready(None)
+                        } else {
+                            match this.codec.decode_eof(&mut state.buffer).map_err(Error::Codec)? {
+                                Some(item) => Poll::Ready(Some(Ok(item))),
+                                None if state.buffer.is_empty() => Poll::Ready(None),
+                                None => Poll::Ready(Some(Err(io::Error::new(
+                                    io::ErrorKind::UnexpectedEof,
+                                    "bytes remaining in stream",
+                                )
+                                .into()))),
+                            }
+                        };
+                    },
+                    _ => {
+                        let n = ready!(this.inner.as_mut().poll_read(cx, &mut buf))?;
+                        state.buffer.extend_from_slice(&buf[..n]);
+                        ended = n == 0;
+                        continue;
+                    },
                 },
-                _ => {
-                    let n = ready!(this.inner.as_mut().poll_read(cx, &mut buf))?;
-                    state.buffer.extend_from_slice(&buf[.. n]);
-                    ended = n == 0;
-                    continue;
+                Err(err) => {
+                    state.has_errored = true;
+                    return Poll::Ready(Some(Err(err)));
                 },
             }
         }
@@ -142,12 +151,14 @@ where
 
 pub(super) struct ReadFrame {
     pub(super) buffer: BytesMut,
+    pub(super) has_errored: bool,
 }
 
 impl Default for ReadFrame {
     fn default() -> Self {
         Self {
             buffer: BytesMut::with_capacity(INITIAL_CAPACITY),
+            has_errored: false,
         }
     }
 }
@@ -159,7 +170,10 @@ impl From<BytesMut> for ReadFrame {
             buffer.reserve(INITIAL_CAPACITY - size);
         }
 
-        Self { buffer }
+        Self {
+            buffer,
+            has_errored: false,
+        }
     }
 }
 
