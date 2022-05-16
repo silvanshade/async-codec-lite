@@ -3,7 +3,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../async_codec_lite/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../async_codec_lite/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../async_codec_lite/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -231,12 +233,55 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">codec</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
     <span class="ident">error::Error</span>,
 };
-<span class="kw">use</span> <span class="ident">bytes::Buf</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">BytesMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">ready</span>, <span class="ident">Stream</span>};
 <span class="kw">use</span> <span class="ident">futures_io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>};
 <span class="kw">use</span> <span class="ident">futures_sink::Sink</span>;
@@ -279,44 +324,76 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U::Item</span>, <span class="ident">Error</span><span class="op">&lt;</span><span class="ident">U::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pinned</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+        <span class="kw">let</span> <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ReadFrame</span> <span class="op">=</span> <span class="ident">pinned</span>.<span class="ident">state</span>.<span class="ident">borrow_mut</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">INITIAL_CAPACITY</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ended</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">has_errored</span> {
-            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>);
-        }
+
         <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="ident">Error::Codec</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">ok</span>) =&gt; <span class="kw">match</span> <span class="ident">ok</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">item</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">item</span>))),
-                    <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">ended</span> =&gt; {
-                        <span class="kw">return</span> <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">is_empty</span>() {
-                            <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-                        } <span class="kw">else</span> {
-                            <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode_eof</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="ident">Error::Codec</span>)<span class="question-mark">?</span> {
-                                <span class="prelude-val">Some</span>(<span class="ident">item</span>) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">item</span>))),
-                                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">is_empty</span>() =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
-                                <span class="prelude-val">None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                                    <span class="ident">io::ErrorKind::UnexpectedEof</span>,
-                                    <span class="string">&quot;bytes remaining in stream&quot;</span>,
-                                )
-                                .<span class="ident">into</span>()))),
-                            }
-                        };
-                    },
-                    <span class="kw">_</span> =&gt; {
-                        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">as_mut</span>().<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>))<span class="question-mark">?</span>;
-                        <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[.. <span class="ident">n</span>]);
-                        <span class="ident">ended</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span>;
-                        <span class="kw">continue</span>;
-                    },
-                },
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="ident">state</span>.<span class="ident">has_errored</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)));
-                },
+            <span class="comment">// Return `None` if we have encountered an error from the underlying decoder</span>
+            <span class="comment">// See: https://github.com/tokio-rs/tokio/issues/3976</span>
+            <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">has_errored</span> {
+                <span class="macro">log::trace!</span>(<span class="string">&quot;Returning None and setting paused&quot;</span>);
+                <span class="ident">state</span>.<span class="ident">is_readable</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="ident">state</span>.<span class="ident">has_errored</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>);
             }
+
+            <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">is_readable</span> {
+                <span class="comment">// pausing or framing</span>
+                <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">eof</span> {
+                    <span class="comment">// pausing</span>
+                    <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">pinned</span>.<span class="ident">codec</span>.<span class="ident">decode_eof</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                        <span class="macro">log::trace!</span>(<span class="string">&quot;Got an error, going to errored state&quot;</span>);
+                        <span class="ident">state</span>.<span class="ident">has_errored</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="ident">Error::Codec</span>(<span class="ident">err</span>)
+                    })<span class="question-mark">?</span>;
+                    <span class="kw">if</span> <span class="ident">frame</span>.<span class="ident">is_none</span>() {
+                        <span class="comment">// prepare pausing -&gt; paused</span>
+                        <span class="ident">state</span>.<span class="ident">is_readable</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                    }
+                    <span class="comment">// implicit pausing -&gt; pausing or pausing -&gt; paused</span>
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="ident">frame</span>.<span class="ident">map</span>(<span class="prelude-val">Ok</span>));
+                }
+
+                <span class="comment">// framing</span>
+                <span class="macro">log::trace!</span>(<span class="string">&quot;Attempting to decode a frame&quot;</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">frame</span>) <span class="op">=</span> <span class="ident">pinned</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;Got an error, going to errored state&quot;</span>);
+                    <span class="ident">state</span>.<span class="ident">has_errored</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="ident">Error::Codec</span>(<span class="ident">err</span>)
+                })<span class="question-mark">?</span> {
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;Frame decoded from buffer&quot;</span>);
+                    <span class="comment">// implicit framing -&gt; framing</span>
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">frame</span>)));
+                }
+
+                <span class="comment">// framing -&gt; reading</span>
+                <span class="ident">state</span>.<span class="ident">is_readable</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            }
+
+            <span class="comment">// reading or paused</span>
+            <span class="kw">let</span> <span class="ident">bytes_read</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">pinned</span>.<span class="ident">inner</span>.<span class="ident">as_mut</span>().<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                <span class="macro">log::trace!</span>(<span class="string">&quot;Got an error, going to errored state&quot;</span>);
+                <span class="ident">state</span>.<span class="ident">has_errored</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="ident">err</span>
+            }))<span class="question-mark">?</span>;
+            <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[.. <span class="ident">bytes_read</span>]);
+
+            <span class="kw">if</span> <span class="ident">bytes_read</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">eof</span> {
+                    <span class="comment">// implicit paused -&gt; paused</span>
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>);
+                }
+                <span class="comment">// prepare reading -&gt; paused</span>
+                <span class="ident">state</span>.<span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            } <span class="kw">else</span> {
+                <span class="comment">// prepare paused -&gt; framing or noop reading -&gt; framing</span>
+                <span class="ident">state</span>.<span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            }
+
+            <span class="comment">// paused -&gt; framing or reading -&gt; framing or reading -&gt; pausing</span>
+            <span class="ident">state</span>.<span class="ident">is_readable</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
     }
 }
@@ -328,12 +405,16 @@
     <span class="ident">W</span>: <span class="ident">BorrowMut</span><span class="op">&lt;</span><span class="ident">WriteFrame</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">poll_flush_until</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">borrow_mut</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pinned</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">pinned</span>.<span class="ident">state</span>.<span class="ident">borrow_mut</span>();
         <span class="kw">let</span> <span class="ident">orig_len</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">len</span>();
 
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Flushing framed transport&quot;</span>);
+
         <span class="kw">while</span> <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">limit</span> {
-            <span class="kw">let</span> <span class="ident">num_write</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">as_mut</span>().<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">buffer</span>))<span class="question-mark">?</span>;
+            <span class="macro">log::trace!</span>(<span class="string">&quot;Writing; remaining = {}&quot;</span>, <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">len</span>());
+
+            <span class="kw">let</span> <span class="ident">num_write</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">pinned</span>.<span class="ident">inner</span>.<span class="ident">as_mut</span>().<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">buffer</span>))<span class="question-mark">?</span>;
 
             <span class="kw">if</span> <span class="ident">num_write</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
@@ -345,8 +426,10 @@
             <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">advance</span>(<span class="ident">num_write</span>);
         }
 
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Framed transport flushed&quot;</span>);
+
         <span class="kw">if</span> <span class="ident">orig_len</span> <span class="op">!</span><span class="op">=</span> <span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() {
-            <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
+            <span class="ident">pinned</span>.<span class="ident">inner</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
         } <span class="kw">else</span> {
             <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
         }
@@ -366,9 +449,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">start_send</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">item</span>: <span class="ident">U::Item</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="ident">this</span>.<span class="ident">codec</span>
-            .<span class="ident">encode</span>(<span class="ident">item</span>, <span class="kw-2">&amp;mut</span> <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">borrow_mut</span>().<span class="ident">buffer</span>)
+        <span class="kw">let</span> <span class="ident">pinned</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+        <span class="ident">pinned</span>
+            .<span class="ident">codec</span>
+            .<span class="ident">encode</span>(<span class="ident">item</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pinned</span>.<span class="ident">state</span>.<span class="ident">borrow_mut</span>().<span class="ident">buffer</span>)
             .<span class="ident">map_err</span>(<span class="ident">Error::Codec</span>)
     }
 
@@ -384,14 +468,18 @@
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">ReadFrame</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">buffer</span>: <span class="ident">BytesMut</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">eof</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">has_errored</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">is_readable</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ReadFrame</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">buffer</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">INITIAL_CAPACITY</span>),
+            <span class="ident">eof</span>: <span class="bool-val">false</span>,
             <span class="ident">has_errored</span>: <span class="bool-val">false</span>,
+            <span class="ident">is_readable</span>: <span class="bool-val">false</span>,
         }
     }
 }
@@ -405,7 +493,9 @@
 
         <span class="self">Self</span> {
             <span class="ident">buffer</span>,
+            <span class="ident">eof</span>: <span class="bool-val">false</span>,
             <span class="ident">has_errored</span>: <span class="bool-val">false</span>,
+            <span class="ident">is_readable</span>: <span class="ident">size</span> <span class="op">&gt;</span> <span class="number">0</span>,
         }
     }
 }
@@ -460,5 +550,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_codec_lite" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_codec_lite" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
 </body></html>
