@@ -2,8 +2,7 @@ use crate::{
     codec::{Decoder, Encoder},
     error::Error,
 };
-use bytes::Buf;
-pub use bytes::{Bytes, BytesMut};
+use bytes::{Buf, BytesMut};
 use futures_core::{ready, Stream};
 use futures_io::{AsyncRead, AsyncWrite};
 use futures_sink::Sink;
@@ -46,44 +45,76 @@ where
     type Item = Result<U::Item, Error<U::Error>>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let mut pinned = self.project();
+        let state: &mut ReadFrame = pinned.state.borrow_mut();
         let mut buf = [0u8; INITIAL_CAPACITY];
-        let mut ended = false;
-        let mut this = self.project();
-        let state = this.state.borrow_mut();
-        if state.has_errored {
-            return Poll::Ready(None);
-        }
+
         loop {
-            match this.codec.decode(&mut state.buffer).map_err(Error::Codec) {
-                Ok(ok) => match ok {
-                    Some(item) => return Poll::Ready(Some(Ok(item))),
-                    None if ended => {
-                        return if state.buffer.is_empty() {
-                            Poll::Ready(None)
-                        } else {
-                            match this.codec.decode_eof(&mut state.buffer).map_err(Error::Codec)? {
-                                Some(item) => Poll::Ready(Some(Ok(item))),
-                                None if state.buffer.is_empty() => Poll::Ready(None),
-                                None => Poll::Ready(Some(Err(io::Error::new(
-                                    io::ErrorKind::UnexpectedEof,
-                                    "bytes remaining in stream",
-                                )
-                                .into()))),
-                            }
-                        };
-                    },
-                    _ => {
-                        let n = ready!(this.inner.as_mut().poll_read(cx, &mut buf))?;
-                        state.buffer.extend_from_slice(&buf[.. n]);
-                        ended = n == 0;
-                        continue;
-                    },
-                },
-                Err(err) => {
-                    state.has_errored = true;
-                    return Poll::Ready(Some(Err(err)));
-                },
+            // Return `None` if we have encountered an error from the underlying decoder
+            // See: https://github.com/tokio-rs/tokio/issues/3976
+            if state.has_errored {
+                log::trace!("Returning None and setting paused");
+                state.is_readable = false;
+                state.has_errored = false;
+                return Poll::Ready(None);
             }
+
+            if state.is_readable {
+                // pausing or framing
+                if state.eof {
+                    // pausing
+                    let frame = pinned.codec.decode_eof(&mut state.buffer).map_err(|err| {
+                        log::trace!("Got an error, going to errored state");
+                        state.has_errored = true;
+                        Error::Codec(err)
+                    })?;
+                    if frame.is_none() {
+                        // prepare pausing -> paused
+                        state.is_readable = false;
+                    }
+                    // implicit pausing -> pausing or pausing -> paused
+                    return Poll::Ready(frame.map(Ok));
+                }
+
+                // framing
+                log::trace!("Attempting to decode a frame");
+
+                if let Some(frame) = pinned.codec.decode(&mut state.buffer).map_err(|err| {
+                    log::trace!("Got an error, going to errored state");
+                    state.has_errored = true;
+                    Error::Codec(err)
+                })? {
+                    log::trace!("Frame decoded from buffer");
+                    // implicit framing -> framing
+                    return Poll::Ready(Some(Ok(frame)));
+                }
+
+                // framing -> reading
+                state.is_readable = false;
+            }
+
+            // reading or paused
+            let bytes_read = ready!(pinned.inner.as_mut().poll_read(cx, &mut buf).map_err(|err| {
+                log::trace!("Got an error, going to errored state");
+                state.has_errored = true;
+                err
+            }))?;
+            state.buffer.extend_from_slice(&buf[.. bytes_read]);
+
+            if bytes_read == 0 {
+                if state.eof {
+                    // implicit paused -> paused
+                    return Poll::Ready(None);
+                }
+                // prepare reading -> paused
+                state.eof = true;
+            } else {
+                // prepare paused -> framing or noop reading -> framing
+                state.eof = false;
+            }
+
+            // paused -> framing or reading -> framing or reading -> pausing
+            state.is_readable = true;
         }
     }
 }
@@ -95,12 +126,16 @@ where
     W: BorrowMut<WriteFrame>,
 {
     fn poll_flush_until(self: Pin<&mut Self>, cx: &mut Context<'_>, limit: usize) -> Poll<Result<(), io::Error>> {
-        let mut this = self.project();
-        let state = this.state.borrow_mut();
+        let mut pinned = self.project();
+        let state = pinned.state.borrow_mut();
         let orig_len = state.buffer.len();
 
+        log::trace!("Flushing framed transport");
+
         while state.buffer.len() > limit {
-            let num_write = ready!(this.inner.as_mut().poll_write(cx, &state.buffer))?;
+            log::trace!("Writing; remaining = {}", state.buffer.len());
+
+            let num_write = ready!(pinned.inner.as_mut().poll_write(cx, &state.buffer))?;
 
             if num_write == 0 {
                 return Poll::Ready(Err(io::Error::new(
@@ -112,8 +147,10 @@ where
             state.buffer.advance(num_write);
         }
 
+        log::trace!("Framed transport flushed");
+
         if orig_len != state.buffer.len() {
-            this.inner.poll_flush(cx)
+            pinned.inner.poll_flush(cx)
         } else {
             Poll::Ready(Ok(()))
         }
@@ -133,9 +170,10 @@ where
     }
 
     fn start_send(self: Pin<&mut Self>, item: U::Item) -> Result<(), Self::Error> {
-        let this = self.project();
-        this.codec
-            .encode(item, &mut this.state.borrow_mut().buffer)
+        let pinned = self.project();
+        pinned
+            .codec
+            .encode(item, &mut pinned.state.borrow_mut().buffer)
             .map_err(Error::Codec)
     }
 
@@ -151,14 +189,18 @@ where
 
 pub(super) struct ReadFrame {
     pub(super) buffer: BytesMut,
+    pub(super) eof: bool,
     pub(super) has_errored: bool,
+    pub(super) is_readable: bool,
 }
 
 impl Default for ReadFrame {
     fn default() -> Self {
         Self {
             buffer: BytesMut::with_capacity(INITIAL_CAPACITY),
+            eof: false,
             has_errored: false,
+            is_readable: false,
         }
     }
 }
@@ -172,7 +214,9 @@ impl From<BytesMut> for ReadFrame {
 
         Self {
             buffer,
+            eof: false,
             has_errored: false,
+            is_readable: size > 0,
         }
     }
 }

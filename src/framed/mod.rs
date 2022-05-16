@@ -46,7 +46,9 @@ impl<T, U> Framed<T, U> {
                 state: RWFrames {
                     read: ReadFrame {
                         buffer: BytesMut::with_capacity(capacity),
+                        eof: false,
                         has_errored: false,
+                        is_readable: false,
                     },
                     write: WriteFrame::default(),
                 },
